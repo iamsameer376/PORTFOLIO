@@ -22,6 +22,7 @@ const projects = [
       "Multi-language Support",
       "Real-time Responses",
     ],
+    githubUrl: "https://github.com/iamsameer376",
   },
   {
     title: "ACCRUVISTA CRM",
@@ -40,6 +41,7 @@ const projects = [
       "Automated Reports",
       "Client Tracking",
     ],
+    githubUrl: "",
   },
   {
     title: "ACCRUVISTA Website",
@@ -58,6 +60,7 @@ const projects = [
       "Performance Tuned",
       "Brand Identity",
     ],
+    githubUrl: "",
   },
   {
     title: "BOOKNEX",
@@ -77,6 +80,7 @@ const projects = [
       "Location-based Search",
     ],
     liveUrl: "https://book-nez-zxxm.vercel.app/",
+    githubUrl: "",
   },
 ];
 

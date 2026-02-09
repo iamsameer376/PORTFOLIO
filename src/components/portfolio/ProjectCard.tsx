@@ -97,31 +97,34 @@ const ProjectCard = ({
               ))}
             </div>
 
-            {/* Links */}
             <div className="flex gap-3">
-              <motion.a
-                href={liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full ${color} text-white text-sm font-medium hover:shadow-lg transition-shadow duration-300`}
-                style={{ boxShadow: `0 4px 15px -3px ${glowColor}` }}
-              >
-                <ExternalLink size={14} />
-                Live Demo
-              </motion.a>
-              <motion.a
-                href={githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-border text-foreground text-sm font-medium hover:border-primary/50 transition-colors duration-300"
-              >
-                <Github size={14} />
-                Source
-              </motion.a>
+              {liveUrl && liveUrl !== "#" && (
+                <motion.a
+                  href={liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full ${color} text-white text-sm font-medium hover:shadow-lg transition-shadow duration-300`}
+                  style={{ boxShadow: `0 4px 15px -3px ${glowColor}` }}
+                >
+                  <ExternalLink size={14} />
+                  Live Demo
+                </motion.a>
+              )}
+              {githubUrl && githubUrl !== "#" && (
+                <motion.a
+                  href={githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-border text-foreground text-sm font-medium hover:border-primary/50 transition-colors duration-300"
+                >
+                  <Github size={14} />
+                  Source
+                </motion.a>
+              )}
             </div>
           </div>
 
@@ -168,15 +171,17 @@ const ProjectCard = ({
             <div className="text-xs text-muted-foreground font-mono uppercase tracking-wider mb-1">Type</div>
             <span className="text-sm text-foreground">{description}</span>
           </div>
-          <motion.a
-            href={liveUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ x: 5 }}
-            className="flex items-center gap-1 text-primary text-sm font-medium"
-          >
-            View Project <ArrowUpRight size={14} />
-          </motion.a>
+          {liveUrl && liveUrl !== "#" && (
+            <motion.a
+              href={liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ x: 5 }}
+              className="flex items-center gap-1 text-primary text-sm font-medium"
+            >
+              View Project <ArrowUpRight size={14} />
+            </motion.a>
+          )}
         </div>
       </motion.div>
     </motion.div>
