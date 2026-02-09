@@ -5,11 +5,11 @@ const HeroSection = () => {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex flex-col justify-start md:justify-center md:items-center pt-32 md:pt-0 overflow-hidden"
     >
       {/* Gradient orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "3s" }} />
+      <div className="absolute top-1/4 -left-32 w-64 h-64 md:w-96 md:h-96 bg-primary/10 rounded-full blur-3xl md:animate-float" />
+      <div className="absolute bottom-1/4 -right-32 w-64 h-64 md:w-96 md:h-96 bg-accent/10 rounded-full blur-3xl md:animate-float" style={{ animationDelay: "3s" }} />
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
