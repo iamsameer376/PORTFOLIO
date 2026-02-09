@@ -76,6 +76,7 @@ const projects = [
       "Reviews & Ratings",
       "Location-based Search",
     ],
+    liveUrl: "https://book-nez-zxxm.vercel.app/",
   },
 ];
 
