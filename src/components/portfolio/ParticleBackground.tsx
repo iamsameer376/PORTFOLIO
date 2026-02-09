@@ -26,7 +26,9 @@ const ParticleBackground = () => {
     };
 
     const createParticles = () => {
-      const count = Math.min(80, Math.floor(window.innerWidth / 15));
+      const isMobile = window.innerWidth < 768;
+      const density = isMobile ? 40 : 15;
+      const count = Math.min(isMobile ? 20 : 80, Math.floor(window.innerWidth / density));
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,

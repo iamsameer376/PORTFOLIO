@@ -65,11 +65,17 @@
     font-family: 'Space Grotesk', sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Space Grotesk', sans-serif;
   }
 
-  code, pre {
+  code,
+  pre {
     font-family: 'JetBrains Mono', monospace;
   }
 }
@@ -99,9 +105,15 @@
   }
 
   .glass {
-    background: hsl(220 18% 8% / 0.6);
-    backdrop-filter: blur(20px);
+    background: hsl(220 18% 8% / 0.8);
     border: 1px solid hsl(220 15% 16% / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .glass {
+      background: hsl(220 18% 8% / 0.6);
+      backdrop-filter: blur(20px);
+    }
   }
 
   .hover-glow {
@@ -114,7 +126,7 @@
   }
 
   .grid-pattern {
-    background-image: 
+    background-image:
       linear-gradient(hsl(220 15% 16% / 0.3) 1px, transparent 1px),
       linear-gradient(90deg, hsl(220 15% 16% / 0.3) 1px, transparent 1px);
     background-size: 60px 60px;
