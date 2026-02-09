@@ -10,6 +10,9 @@ const ParticleBackground = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) return;
+
     let animationId: number;
     const particles: Array<{
       x: number;
@@ -26,9 +29,8 @@ const ParticleBackground = () => {
     };
 
     const createParticles = () => {
-      const isMobile = window.innerWidth < 768;
-      const density = isMobile ? 40 : 15;
-      const count = Math.min(isMobile ? 20 : 80, Math.floor(window.innerWidth / density));
+      const density = 15;
+      const count = Math.min(80, Math.floor(window.innerWidth / density));
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,

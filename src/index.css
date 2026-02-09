@@ -131,6 +131,16 @@
       linear-gradient(90deg, hsl(220 15% 16% / 0.3) 1px, transparent 1px);
     background-size: 60px 60px;
   }
+
+  @media (max-width: 768px) {
+
+    .animate-float,
+    .animate-pulse-glow,
+    .animate-spin-slow,
+    .animate-gradient-shift {
+      animation: none !important;
+    }
+  }
 }
 
 /* Custom scrollbar */
