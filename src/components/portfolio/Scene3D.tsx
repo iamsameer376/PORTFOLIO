@@ -21,7 +21,7 @@ const Scene3D = () => {
         const isMobile = W < 768;
 
         // ─── Stars — fewer, much slower, dimmer ─────────────────────────────────
-        const STAR_COUNT = isMobile ? 120 : 700;
+        const STAR_COUNT = isMobile ? 250 : 700;
 
         type Star = { x: number; y: number; z: number; r: number; opacity: number };
 
@@ -57,92 +57,13 @@ const Scene3D = () => {
             floatOffset: Math.random() * Math.PI * 2,
         }));
 
-        // ─── Input handling (Mouse + Gyroscope) ────────────────────────────────
+        // ─── Mouse parallax — very gentle ───────────────────────────────────────
         let mouseX = 0;
         let mouseY = 0;
-        let targetMouseX = 0;
-        let targetMouseY = 0;
-
         const onMouse = (e: MouseEvent) => {
-            targetMouseX = (e.clientX / W - 0.5) * 2;
-            targetMouseY = (e.clientY / H - 0.5) * 2;
+            mouseX = (e.clientX / W - 0.5) * 2;
+            mouseY = (e.clientY / H - 0.5) * 2;
         };
-
-        const onDeviceOrientation = (event: DeviceOrientationEvent) => {
-            if (event.gamma === null || event.beta === null) return;
-            // event.gamma is left-to-right tilt in degrees, where right is positive (-90 to 90)
-            // event.beta is front-to-back tilt in degrees, where front is positive (-180 to 180)
-
-            // Normalize clamp to [-1, 1] range for smooth parallax
-            let x = event.gamma / 45; // max tilt 45deg
-            let y = (event.beta - 45) / 45; // assume holding phone at 45deg angle naturally
-
-            x = Math.max(-1, Math.min(1, x));
-            y = Math.max(-1, Math.min(1, y));
-
-            targetMouseX = x;
-            targetMouseY = y;
-        };
-
-        const requestGyroPermission = async () => {
-            try {
-                // @ts-expect-error - DeviceOrientationEvent.requestPermission is non-standard iOS 13+
-                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    // @ts-expect-error
-                    const permission = await DeviceOrientationEvent.requestPermission();
-                    if (permission === 'granted') {
-                        window.addEventListener('deviceorientation', onDeviceOrientation);
-                    }
-                } else {
-                    // Non-iOS 13+ devices
-                    window.addEventListener('deviceorientation', onDeviceOrientation);
-                }
-            } catch (err) {
-                console.error("Gyro permission error:", err);
-            }
-        };
-
-        // Try binding gyro immediately for Android
-        requestGyroPermission();
-
-        // Fallback for iOS: must be triggered by a direct user interaction
-        const handleInteraction = () => {
-            requestGyroPermission();
-            window.removeEventListener('click', handleInteraction);
-            window.removeEventListener('touchstart', handleInteraction);
-        };
-        window.addEventListener('click', handleInteraction);
-        window.addEventListener('touchstart', handleInteraction, { passive: true });
-
-        // ─── Touch Parallax Fallback ──────────────────────────────────────────
-        let isTouching = false;
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        const onTouchStart = (e: TouchEvent) => {
-            isTouching = true;
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        };
-        const onTouchMove = (e: TouchEvent) => {
-            if (!isTouching) return;
-            const dx = e.touches[0].clientX - touchStartX;
-            const dy = e.touches[0].clientY - touchStartY;
-            // Map swipe distance to parallax target
-            targetMouseX = Math.max(-1, Math.min(1, (dx / W) * 2));
-            targetMouseY = Math.max(-1, Math.min(1, (dy / H) * 2));
-        };
-        const onTouchEnd = () => {
-            isTouching = false;
-            // Gently return to center when let go (if gyro isn't overriding)
-            targetMouseX = 0;
-            targetMouseY = 0;
-        };
-
-        window.addEventListener("touchstart", onTouchStart, { passive: true });
-        window.addEventListener("touchmove", onTouchMove, { passive: true });
-        window.addEventListener("touchend", onTouchEnd);
-
         window.addEventListener("mousemove", onMouse);
         const onResize = () => {
             W = window.innerWidth;
@@ -186,13 +107,9 @@ const Scene3D = () => {
             ctx.clearRect(0, 0, W, H);
 
             const focalLen = 500;
-            // Smooth lerp mouse/gyro coordinates
-            mouseX += (targetMouseX - mouseX) * 0.05;
-            mouseY += (targetMouseY - mouseY) * 0.05;
-
             // Very gentle parallax — barely perceptible
-            const baseOfsX = mouseX * 8; // Slightly increased for mobile gyro feel
-            const baseOfsY = mouseY * 6;
+            const baseOfsX = mouseX * 6;
+            const baseOfsY = mouseY * 4;
 
             // Stars — drift very slowly
             for (const star of stars) {
@@ -209,15 +126,11 @@ const Scene3D = () => {
                 const depthAlpha = (1 - star.z / 2000);
                 const alpha = Math.min(0.6, depthAlpha * star.opacity);
 
-                // Uniform white-ish color — HIGH PERFORMANCE render (rect instead of arc on mobile)
+                // Uniform white-ish color — no strong hue
+                ctx.beginPath();
+                ctx.arc(sx, sy, radius, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(200, 220, 240, ${alpha})`;
-                if (isMobile) {
-                    ctx.fillRect(sx - radius, sy - radius, radius * 2, radius * 2);
-                } else {
-                    ctx.beginPath();
-                    ctx.arc(sx, sy, radius, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+                ctx.fill();
             }
 
             // Floating wireframe shapes — very subtle, slow
@@ -239,12 +152,6 @@ const Scene3D = () => {
             cancelAnimationFrame(animId);
             window.removeEventListener("mousemove", onMouse);
             window.removeEventListener("resize", onResize);
-            window.removeEventListener("deviceorientation", onDeviceOrientation);
-            window.removeEventListener('click', handleInteraction);
-            window.removeEventListener('touchstart', handleInteraction);
-            window.removeEventListener('touchstart', onTouchStart);
-            window.removeEventListener('touchmove', onTouchMove);
-            window.removeEventListener('touchend', onTouchEnd);
         };
     }, []);
 

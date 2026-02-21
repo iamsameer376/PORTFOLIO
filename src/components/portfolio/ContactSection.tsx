@@ -123,7 +123,7 @@ const ContactSection = () => {
                 y: [0, -6, 0, 6, 0],
               }}
               transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-              style={{ perspective: "1000px" }}
+              style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
             >
               <form ref={formRef} onSubmit={handleSubmit} className="glass rounded-2xl p-8 space-y-5 neon-border">
                 <div className="grid sm:grid-cols-2 gap-4">

@@ -39,7 +39,7 @@ function TiltCard({ children, className, glowColor }: { children: React.ReactNod
         ref={cardRef}
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseLeave}
-        style={{ rotateX, rotateY }}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
         className={`relative group ${className ?? ""}`}
       >
         {/* Cursor-following glow — motion value driven, zero re-renders */}
@@ -91,19 +91,20 @@ const AboutSection = () => {
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 60 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              initial={{ opacity: 0, y: 60, z: -80 }}
+              animate={isInView ? { opacity: 1, y: 0, z: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 + index * 0.12, ease: "backOut" }}
+              style={{ transformStyle: "preserve-3d" }}
             >
               <TiltCard glowColor={stat.glow} className="relative glass rounded-2xl p-6 text-center hover-glow cursor-default overflow-hidden">
                 {/* Card inner */}
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} mx-auto mb-4 flex items-center justify-center shadow-lg`}>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} mx-auto mb-4 flex items-center justify-center shadow-lg`} style={{ transform: "translateZ(20px)" }}>
                   <stat.icon className="w-6 h-6 text-white" />
                 </div>
-                <div className="text-3xl font-bold text-foreground mb-1">
+                <div className="text-3xl font-bold text-foreground mb-1" style={{ transform: "translateZ(15px)" }}>
                   {stat.value}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-muted-foreground" style={{ transform: "translateZ(10px)" }}>
                   {stat.label}
                 </div>
 

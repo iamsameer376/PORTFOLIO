@@ -56,7 +56,14 @@ const Navbar = () => {
     >
       {/* Animated background blur on scroll */}
       {scrolled && (
-        <div className="absolute inset-0 -z-10 rounded-none bg-background/95 md:bg-[hsl(220_18%_5%_/_.85)] md:backdrop-blur-xl" />
+        <div
+          className="absolute inset-0 -z-10 rounded-none"
+          style={{
+            background: "hsl(220 18% 5% / 0.85)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+          }}
+        />
       )}
 
       <div className="container mx-auto px-6 flex items-center justify-between">
