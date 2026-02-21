@@ -136,7 +136,6 @@
 
   /* 3D card tilt base */
   .card-3d {
-    transform-style: preserve-3d;
     transition: transform 0.1s ease-out, box-shadow 0.3s ease;
   }
 

@@ -51,10 +51,10 @@ const HeroSection = () => {
 
       {/* 3D Parallax container */}
       <motion.div
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        style={{ rotateX, rotateY }}
         className="container mx-auto px-4 md:px-6 relative z-10 w-full"
       >
-        <div className="max-w-4xl mx-auto text-center" style={{ transformStyle: "preserve-3d" }}>
+        <div className="max-w-4xl mx-auto text-center">
 
           {/* Status badge */}
           <motion.div

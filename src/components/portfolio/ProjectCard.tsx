@@ -71,7 +71,6 @@ const ProjectCard = ({
           style={{
             rotateX,
             rotateY,
-            transformStyle: "preserve-3d",
           }}
           className="relative rounded-2xl overflow-hidden glass group cursor-pointer"
         >
@@ -87,9 +86,9 @@ const ProjectCard = ({
           />
 
           {/* Card content area */}
-          <div className="p-6 md:p-10 relative z-20" style={{ transformStyle: "preserve-3d" }}>
+          <div className="p-6 md:p-10 relative z-20">
             {/* Icon & Title */}
-            <div className="flex items-center gap-4 mb-6" style={{ transform: "translateZ(30px)" }}>
+            <div className="flex items-center gap-4 mb-6">
               <motion.div
                 whileHover={{ rotate: 360, scale: 1.1 }}
                 transition={{ duration: 0.6 }}
