@@ -31,18 +31,12 @@ const HeroSection = () => {
     visible: { transition: { staggerChildren: 0.04 } },
   };
 
-  const wordContainerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.04 } },
-  };
-
-  const letterVariants = {
-    hidden: { opacity: 0, y: 40, rotateX: -80 },
+  const wordVariants = {
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      rotateX: 0,
-      transition: { duration: 0.45, ease: "easeOut" as const },
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
   };
 
@@ -73,40 +67,32 @@ const HeroSection = () => {
             <span className="text-sm text-muted-foreground">Available for work</span>
           </motion.div>
 
-          {/* 3D Letter-by-letter title — word-safe wrapping */}
-          <div className="mb-2" style={{ perspective: "800px" }}>
+          {/* High-Performance Word-by-word title */}
+          <div className="mb-2">
             <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-3">
               <span className="text-foreground block">Hi, I'm</span>
-              {/* Each word is its own flex container so it never breaks mid-word */}
-              <span
-                style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0 0.4em", transformStyle: "preserve-3d" }}
+              <motion.span
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-wrap justify-center gap-x-[0.4em]"
               >
                 {TITLE_WORDS.map((word, wi) => (
                   <motion.span
                     key={wi}
-                    variants={wordContainerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    style={{ display: "inline-flex", whiteSpace: "nowrap", transformStyle: "preserve-3d" }}
+                    variants={wordVariants}
+                    style={{
+                      display: "inline-block",
+                      background: "linear-gradient(135deg, hsl(200,80%,62%), hsl(265,70%,65%))",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
                   >
-                    {word.split("").map((char, ci) => (
-                      <motion.span
-                        key={ci}
-                        variants={letterVariants}
-                        style={{
-                          display: "inline-block",
-                          background: "linear-gradient(135deg, hsl(200,80%,62%), hsl(265,70%,65%))",
-                          WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                          backgroundClip: "text",
-                        }}
-                      >
-                        {char}
-                      </motion.span>
-                    ))}
+                    {word}
                   </motion.span>
                 ))}
-              </span>
+              </motion.span>
             </h1>
           </div>
 
