@@ -21,7 +21,7 @@ const Scene3D = () => {
         const isMobile = W < 768;
 
         // ─── Stars — fewer, much slower, dimmer ─────────────────────────────────
-        const STAR_COUNT = isMobile ? 250 : 700;
+        const STAR_COUNT = isMobile ? 120 : 700;
 
         type Star = { x: number; y: number; z: number; r: number; opacity: number };
 
@@ -84,27 +84,64 @@ const Scene3D = () => {
             targetMouseY = y;
         };
 
-        const requestGyroPermission = () => {
-            // @ts-expect-error - DeviceOrientationEvent.requestPermission is non-standard iOS 13+
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                // @ts-expect-error
-                DeviceOrientationEvent.requestPermission()
-                    .then((permissionState: string) => {
-                        if (permissionState === 'granted') {
-                            window.addEventListener('deviceorientation', onDeviceOrientation);
-                        }
-                    })
-                    .catch(console.error);
-            } else {
-                // Non-iOS 13+ devices
-                window.addEventListener('deviceorientation', onDeviceOrientation);
+        const requestGyroPermission = async () => {
+            try {
+                // @ts-expect-error - DeviceOrientationEvent.requestPermission is non-standard iOS 13+
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    // @ts-expect-error
+                    const permission = await DeviceOrientationEvent.requestPermission();
+                    if (permission === 'granted') {
+                        window.addEventListener('deviceorientation', onDeviceOrientation);
+                    }
+                } else {
+                    // Non-iOS 13+ devices
+                    window.addEventListener('deviceorientation', onDeviceOrientation);
+                }
+            } catch (err) {
+                console.error("Gyro permission error:", err);
             }
         };
 
-        // Try binding gyro immediately for Android, wait for click for iOS 13+
+        // Try binding gyro immediately for Android
         requestGyroPermission();
-        // Fallback for iOS: first touch anywhere will try to request permission
-        window.addEventListener('touchstart', requestGyroPermission, { once: true });
+
+        // Fallback for iOS: must be triggered by a direct user interaction
+        const handleInteraction = () => {
+            requestGyroPermission();
+            window.removeEventListener('click', handleInteraction);
+            window.removeEventListener('touchstart', handleInteraction);
+        };
+        window.addEventListener('click', handleInteraction);
+        window.addEventListener('touchstart', handleInteraction, { passive: true });
+
+        // ─── Touch Parallax Fallback ──────────────────────────────────────────
+        let isTouching = false;
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        const onTouchStart = (e: TouchEvent) => {
+            isTouching = true;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        };
+        const onTouchMove = (e: TouchEvent) => {
+            if (!isTouching) return;
+            const dx = e.touches[0].clientX - touchStartX;
+            const dy = e.touches[0].clientY - touchStartY;
+            // Map swipe distance to parallax target
+            targetMouseX = Math.max(-1, Math.min(1, (dx / W) * 2));
+            targetMouseY = Math.max(-1, Math.min(1, (dy / H) * 2));
+        };
+        const onTouchEnd = () => {
+            isTouching = false;
+            // Gently return to center when let go (if gyro isn't overriding)
+            targetMouseX = 0;
+            targetMouseY = 0;
+        };
+
+        window.addEventListener("touchstart", onTouchStart, { passive: true });
+        window.addEventListener("touchmove", onTouchMove, { passive: true });
+        window.addEventListener("touchend", onTouchEnd);
 
         window.addEventListener("mousemove", onMouse);
         const onResize = () => {
@@ -172,11 +209,15 @@ const Scene3D = () => {
                 const depthAlpha = (1 - star.z / 2000);
                 const alpha = Math.min(0.6, depthAlpha * star.opacity);
 
-                // Uniform white-ish color — no strong hue
-                ctx.beginPath();
-                ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+                // Uniform white-ish color — HIGH PERFORMANCE render (rect instead of arc on mobile)
                 ctx.fillStyle = `rgba(200, 220, 240, ${alpha})`;
-                ctx.fill();
+                if (isMobile) {
+                    ctx.fillRect(sx - radius, sy - radius, radius * 2, radius * 2);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
 
             // Floating wireframe shapes — very subtle, slow
@@ -199,7 +240,11 @@ const Scene3D = () => {
             window.removeEventListener("mousemove", onMouse);
             window.removeEventListener("resize", onResize);
             window.removeEventListener("deviceorientation", onDeviceOrientation);
-            window.removeEventListener("touchstart", requestGyroPermission);
+            window.removeEventListener('click', handleInteraction);
+            window.removeEventListener('touchstart', handleInteraction);
+            window.removeEventListener('touchstart', onTouchStart);
+            window.removeEventListener('touchmove', onTouchMove);
+            window.removeEventListener('touchend', onTouchEnd);
         };
     }, []);
 
