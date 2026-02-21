@@ -80,7 +80,8 @@ const projects = [
       "Multi-language Support",
       "Real-time Responses",
     ],
-    githubUrl: "https://github.com/iamsameer376",
+    liveUrl: "https://sifra-ten.vercel.app/",
+    githubUrl: "https://github.com/iamsameer376/SIFRA-",
   },
 ];
 

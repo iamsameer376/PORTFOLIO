@@ -1,61 +1,135 @@
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { useEffect, useRef } from "react";
 import { ArrowDown, Github, Linkedin, Mail, Sparkles, Phone } from "lucide-react";
 
+const TITLE_WORDS = ["Mohammed", "Sameer"];
+
 const HeroSection = () => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springX = useSpring(mouseX, { stiffness: 60, damping: 30 });
+  const springY = useSpring(mouseY, { stiffness: 60, damping: 30 });
+
+  const rotateX = useTransform(springY, [-300, 300], [8, -8]);
+  const rotateY = useTransform(springX, [-500, 500], [-8, 8]);
+
+  const handleMouseMove = (e: MouseEvent) => {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    mouseX.set(e.clientX - cx);
+    mouseY.set(e.clientY - cy);
+  };
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.04 } },
+  };
+
+  const wordContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.04 } },
+  };
+
+  const letterVariants = {
+    hidden: { opacity: 0, y: 40, rotateX: -80 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      rotateX: 0,
+      transition: { duration: 0.45, ease: "easeOut" as const },
+    },
+  };
+
   return (
     <section
       id="home"
       className="relative min-h-screen flex flex-col justify-start md:justify-center md:items-center pt-32 md:pt-0 overflow-hidden"
     >
-      {/* Gradient orbs */}
-      <div className="absolute top-1/4 -left-32 w-64 h-64 md:w-96 md:h-96 bg-primary/10 rounded-full blur-3xl md:animate-float" />
-      <div className="absolute bottom-1/4 -right-32 w-64 h-64 md:w-96 md:h-96 bg-accent/10 rounded-full blur-3xl md:animate-float" style={{ animationDelay: "3s" }} />
+      {/* Ambient orbs */}
+      <div className="ambient-orb w-[400px] h-[400px] bg-primary top-1/4 -left-48" style={{ opacity: 0.05 }} />
+      <div className="ambient-orb w-[300px] h-[300px] bg-accent bottom-1/4 -right-32" style={{ animationDelay: "3s", opacity: 0.04 }} />
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
+      {/* 3D Parallax container */}
+      <motion.div
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="container mx-auto px-4 md:px-6 relative z-10 w-full"
+      >
+        <div className="max-w-4xl mx-auto text-center" style={{ transformStyle: "preserve-3d" }}>
+
           {/* Status badge */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8"
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, ease: "backOut" }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/60 mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             <span className="text-sm text-muted-foreground">Available for work</span>
           </motion.div>
 
-          {/* Main heading */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <h1 className="text-4xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6">
-              <span className="text-foreground">Hi, I'm </span>
-              <span className="text-gradient">Mohammed Sameer</span>
+          {/* 3D Letter-by-letter title — word-safe wrapping */}
+          <div className="mb-2" style={{ perspective: "800px" }}>
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-3">
+              <span className="text-foreground block">Hi, I'm</span>
+              {/* Each word is its own flex container so it never breaks mid-word */}
+              <span
+                style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0 0.4em", transformStyle: "preserve-3d" }}
+              >
+                {TITLE_WORDS.map((word, wi) => (
+                  <motion.span
+                    key={wi}
+                    variants={wordContainerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    style={{ display: "inline-flex", whiteSpace: "nowrap", transformStyle: "preserve-3d" }}
+                  >
+                    {word.split("").map((char, ci) => (
+                      <motion.span
+                        key={ci}
+                        variants={letterVariants}
+                        style={{
+                          display: "inline-block",
+                          background: "linear-gradient(135deg, hsl(200,80%,62%), hsl(265,70%,65%))",
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          backgroundClip: "text",
+                        }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                  </motion.span>
+                ))}
+              </span>
             </h1>
-          </motion.div>
+          </div>
 
-          {/* Subtitle with typing effect */}
+          {/* Subtitle */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex items-center justify-center gap-3 mb-8"
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="flex items-center justify-center gap-2 mb-8 px-4"
           >
-            <Sparkles className="text-primary w-5 h-5" />
-            <p className="text-xl md:text-2xl text-muted-foreground font-light">
-              Artificial Intelligence and Machine Learning Engineer
+            <Sparkles className="text-primary w-4 h-4 animate-pulse flex-shrink-0 hidden sm:block" />
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground font-light tracking-wide text-center">
+              Artificial Intelligence &amp; Machine Learning Engineer
             </p>
-            <Sparkles className="text-accent w-5 h-5" />
+            <Sparkles className="text-accent w-4 h-4 animate-pulse flex-shrink-0 hidden sm:block" />
           </motion.div>
 
           {/* Description */}
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="text-lg text-muted-foreground/80 max-w-2xl mx-auto mb-8 md:mb-12 leading-relaxed"
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className="text-sm sm:text-base lg:text-lg text-muted-foreground/80 max-w-2xl mx-auto mb-8 md:mb-12 leading-relaxed px-2"
           >
             Building intelligent systems and crafting exceptional digital experiences.
             From AI voice assistants to full-stack applications — I turn complex ideas into elegant solutions.
@@ -65,28 +139,46 @@ const HeroSection = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
+            transition={{ duration: 0.6, delay: 1.2 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 px-4"
           >
-            <a
+            <motion.a
               href="#projects"
-              className="px-8 py-4 rounded-full bg-gradient-primary text-primary-foreground font-semibold hover:shadow-xl hover:shadow-primary/25 transition-all duration-300 hover:scale-105"
+              whileHover={{ scale: 1.07, boxShadow: "0 0 40px hsl(200 100% 55% / 0.6)" }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full sm:w-auto px-8 py-3 sm:py-4 rounded-full bg-gradient-primary text-primary-foreground font-semibold transition-all duration-300 relative overflow-hidden group text-center"
             >
-              View My Work
-            </a>
-            <a
+              <span className="relative z-10">View My Work</span>
+              <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12" />
+            </motion.a>
+            <motion.a
               href="#contact"
-              className="px-8 py-4 rounded-full border border-border text-foreground font-semibold hover:border-primary/50 hover:text-primary transition-all duration-300 hover:scale-105"
+              whileHover={{ scale: 1.07 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full sm:w-auto px-8 py-3 sm:py-4 rounded-full neon-border text-foreground font-semibold transition-all duration-300 text-center"
             >
               Get In Touch
-            </a>
+            </motion.a>
+          </motion.div>
+
+          {/* Scroll indicator — inline between buttons and social icons */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.6 }}
+            className="flex flex-col items-center gap-1 py-2"
+          >
+            <span className="text-xs text-muted-foreground/40 font-mono tracking-widest uppercase">Scroll</span>
+            <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
+              <ArrowDown className="text-muted-foreground/35 w-4 h-4" />
+            </motion.div>
           </motion.div>
 
           {/* Social Links */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1.0 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
             className="flex items-center justify-center gap-4"
           >
             {[
@@ -100,9 +192,9 @@ const HeroSection = () => {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ scale: 1.2, y: -3 }}
+                whileHover={{ scale: 1.25, y: -4 }}
                 whileTap={{ scale: 0.9 }}
-                className="w-12 h-12 rounded-full glass flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors duration-300"
+                className="w-12 h-12 rounded-full glass neon-border flex items-center justify-center text-muted-foreground hover:text-primary transition-colors duration-300"
               >
                 <Icon size={20} />
               </motion.a>
@@ -110,21 +202,7 @@ const HeroSection = () => {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <ArrowDown className="text-muted-foreground/50 w-5 h-5" />
-          </motion.div>
-        </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 };

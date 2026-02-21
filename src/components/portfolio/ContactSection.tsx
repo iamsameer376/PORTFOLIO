@@ -47,7 +47,7 @@ const ContactSection = () => {
 
   return (
     <section id="contact" className="relative py-20 md:py-32 overflow-hidden">
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[300px] h-[150px] md:w-[800px] md:h-[400px] bg-primary/5 rounded-full blur-3xl" />
+      <div className="ambient-orb w-[600px] h-[300px] bg-primary bottom-0 left-1/2 -translate-x-1/2" style={{ opacity: 0.07 }} />
 
       <div className="container mx-auto px-4 md:px-6 relative z-10" ref={ref}>
         <motion.div
@@ -92,13 +92,17 @@ const ContactSection = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={isInView ? { opacity: 1, x: 0 } : {}}
                   transition={{ duration: 0.4, delay: 0.4 + i * 0.1 }}
-                  className="flex items-center gap-4 p-4 glass rounded-xl hover-glow"
+                  whileHover={{ x: 6, scale: 1.02 }}
+                  className="flex items-center gap-4 p-4 glass rounded-xl neon-border cursor-default"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
+                  <motion.div
+                    whileHover={{ rotate: 15, scale: 1.1 }}
+                    className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_hsl(200_100%_55%/0.4)]"
+                  >
                     <item.icon className="w-5 h-5 text-primary-foreground" />
-                  </div>
+                  </motion.div>
                   <div>
-                    <div className="text-xs text-muted-foreground font-mono uppercase">{item.label}</div>
+                    <div className="text-xs text-muted-foreground font-mono uppercase neon-text">{item.label}</div>
                     <div className="text-sm text-foreground font-medium">{item.value}</div>
                   </div>
                 </motion.div>
@@ -106,88 +110,99 @@ const ContactSection = () => {
             </div>
           </motion.div>
 
-          {/* Contact Form */}
+          {/* Contact Form — floating 3D animation */}
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <form ref={formRef} onSubmit={handleSubmit} className="glass rounded-2xl p-8 space-y-5">
-              <div className="grid sm:grid-cols-2 gap-4">
+            <motion.div
+              animate={{
+                rotateX: [0, 1.5, 0, -1.5, 0],
+                rotateY: [0, 2, 0, -2, 0],
+                y: [0, -6, 0, 6, 0],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+              style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
+            >
+              <form ref={formRef} onSubmit={handleSubmit} className="glass rounded-2xl p-8 space-y-5 neon-border">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-mono text-muted-foreground uppercase tracking-wider block mb-2">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      name="from_name" // Added name
+                      placeholder=""
+                      required
+                      className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/70 focus:ring-2 focus:ring-primary/30 focus:shadow-[0_0_20px_hsl(200_100%_55%/0.15)] transition-all text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-mono text-muted-foreground uppercase tracking-wider block mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="from_email" // Added name
+                      placeholder=""
+                      required
+                      className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/70 focus:ring-2 focus:ring-primary/30 focus:shadow-[0_0_20px_hsl(200_100%_55%/0.15)] transition-all text-sm"
+                    />
+                  </div>
+                </div>
                 <div>
                   <label className="text-xs font-mono text-muted-foreground uppercase tracking-wider block mb-2">
-                    Name
+                    Subject
                   </label>
                   <input
                     type="text"
-                    name="from_name" // Added name
-                    placeholder="John Doe"
+                    name="subject" // Added name
+                    placeholder="Project Inquiry"
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/70 focus:ring-2 focus:ring-primary/30 focus:shadow-[0_0_20px_hsl(200_100%_55%/0.15)] transition-all text-sm"
                   />
                 </div>
                 <div>
                   <label className="text-xs font-mono text-muted-foreground uppercase tracking-wider block mb-2">
-                    Email
+                    Message
                   </label>
-                  <input
-                    type="email"
-                    name="from_email" // Added name
-                    placeholder="john@example.com"
+                  <textarea
+                    rows={5}
+                    name="message" // Added name
+                    placeholder="Tell me about your project..."
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/70 focus:ring-2 focus:ring-primary/30 focus:shadow-[0_0_20px_hsl(200_100%_55%/0.15)] transition-all text-sm resize-none"
                   />
                 </div>
-              </div>
-              <div>
-                <label className="text-xs font-mono text-muted-foreground uppercase tracking-wider block mb-2">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  name="subject" // Added name
-                  placeholder="Project Inquiry"
-                  required
-                  className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-mono text-muted-foreground uppercase tracking-wider block mb-2">
-                  Message
-                </label>
-                <textarea
-                  rows={5}
-                  name="message" // Added name
-                  placeholder="Tell me about your project..."
-                  required
-                  className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all text-sm resize-none"
-                />
-              </div>
-              <motion.button
-                type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                disabled={isSubmitting} // Disable while submitting
-                className="w-full py-4 rounded-xl bg-gradient-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-primary/25 transition-shadow duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="animate-spin" size={18} />
-                    Sending...
-                  </>
-                ) : submitted ? (
-                  <>
-                    <CheckCircle size={18} />
-                    Message Sent!
-                  </>
-                ) : (
-                  <>
-                    <Send size={18} />
-                    Send Message
-                  </>
-                )}
-              </motion.button>
-            </form>
+                <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.02, boxShadow: "0 0 40px hsl(200 100% 55% / 0.5)" }}
+                  whileTap={{ scale: 0.98 }}
+                  disabled={isSubmitting}
+                  className="w-full py-4 rounded-xl bg-gradient-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden group"
+                >
+                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12" />
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="animate-spin" size={18} />
+                      Sending...
+                    </>
+                  ) : submitted ? (
+                    <>
+                      <CheckCircle size={18} />
+                      Message Sent!
+                    </>
+                  ) : (
+                    <>
+                      <Send size={18} />
+                      Send Message
+                    </>
+                  )}
+                </motion.button>
+              </form>
+            </motion.div>
           </motion.div>
         </div>
       </div>
