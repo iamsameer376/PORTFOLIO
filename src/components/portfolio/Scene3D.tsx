@@ -57,13 +57,55 @@ const Scene3D = () => {
             floatOffset: Math.random() * Math.PI * 2,
         }));
 
-        // ─── Mouse parallax — very gentle ───────────────────────────────────────
+        // ─── Input handling (Mouse + Gyroscope) ────────────────────────────────
         let mouseX = 0;
         let mouseY = 0;
+        let targetMouseX = 0;
+        let targetMouseY = 0;
+
         const onMouse = (e: MouseEvent) => {
-            mouseX = (e.clientX / W - 0.5) * 2;
-            mouseY = (e.clientY / H - 0.5) * 2;
+            targetMouseX = (e.clientX / W - 0.5) * 2;
+            targetMouseY = (e.clientY / H - 0.5) * 2;
         };
+
+        const onDeviceOrientation = (event: DeviceOrientationEvent) => {
+            if (event.gamma === null || event.beta === null) return;
+            // event.gamma is left-to-right tilt in degrees, where right is positive (-90 to 90)
+            // event.beta is front-to-back tilt in degrees, where front is positive (-180 to 180)
+
+            // Normalize clamp to [-1, 1] range for smooth parallax
+            let x = event.gamma / 45; // max tilt 45deg
+            let y = (event.beta - 45) / 45; // assume holding phone at 45deg angle naturally
+
+            x = Math.max(-1, Math.min(1, x));
+            y = Math.max(-1, Math.min(1, y));
+
+            targetMouseX = x;
+            targetMouseY = y;
+        };
+
+        const requestGyroPermission = () => {
+            // @ts-expect-error - DeviceOrientationEvent.requestPermission is non-standard iOS 13+
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                // @ts-expect-error
+                DeviceOrientationEvent.requestPermission()
+                    .then((permissionState: string) => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('deviceorientation', onDeviceOrientation);
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // Non-iOS 13+ devices
+                window.addEventListener('deviceorientation', onDeviceOrientation);
+            }
+        };
+
+        // Try binding gyro immediately for Android, wait for click for iOS 13+
+        requestGyroPermission();
+        // Fallback for iOS: first touch anywhere will try to request permission
+        window.addEventListener('touchstart', requestGyroPermission, { once: true });
+
         window.addEventListener("mousemove", onMouse);
         const onResize = () => {
             W = window.innerWidth;
@@ -107,9 +149,13 @@ const Scene3D = () => {
             ctx.clearRect(0, 0, W, H);
 
             const focalLen = 500;
+            // Smooth lerp mouse/gyro coordinates
+            mouseX += (targetMouseX - mouseX) * 0.05;
+            mouseY += (targetMouseY - mouseY) * 0.05;
+
             // Very gentle parallax — barely perceptible
-            const baseOfsX = mouseX * 6;
-            const baseOfsY = mouseY * 4;
+            const baseOfsX = mouseX * 8; // Slightly increased for mobile gyro feel
+            const baseOfsY = mouseY * 6;
 
             // Stars — drift very slowly
             for (const star of stars) {
@@ -152,6 +198,8 @@ const Scene3D = () => {
             cancelAnimationFrame(animId);
             window.removeEventListener("mousemove", onMouse);
             window.removeEventListener("resize", onResize);
+            window.removeEventListener("deviceorientation", onDeviceOrientation);
+            window.removeEventListener("touchstart", requestGyroPermission);
         };
     }, []);
 
